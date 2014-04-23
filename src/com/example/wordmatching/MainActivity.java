@@ -32,6 +32,9 @@ import org.andengine.util.adt.io.in.IInputStreamOpener;
 import org.andengine.util.color.Color;
 import org.andengine.util.debug.Debug;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.util.Log;
 
@@ -61,7 +64,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 
 	private HashMap<String, ITexture> alphabetBitmapList;
 	private HashMap<String, ITextureRegion> textureRegionList;
-	private ITextureRegion backgroundTextureRegion, tableBackgroundTextureRegion, hoverTextureRegion, timerTextureRegion, helpTextureRegion;
+	private ITextureRegion backgroundTextureRegion, tableBackgroundTextureRegion, hoverTextureRegion, timerTextureRegion, helpTimerTextureRegion;
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -87,7 +90,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 		ITexture tableBackgroundTexture = loadTexture("gfx/table.png");
 		ITexture hoverBackgroundTexture = loadTexture("gfx/hover.png");
 		ITexture timerTexture = loadTexture("gfx/timer.png");
-		ITexture helpTexture = loadTexture("gfx/help.png");
+		ITexture helpTimerTexture = loadTexture("gfx/helpTime.png");
 		initTable();
 		initWordList();
 
@@ -96,7 +99,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 		tableBackgroundTexture.load();
 		hoverBackgroundTexture.load();
 		timerTexture.load();
-		helpTexture.load();
+		helpTimerTexture.load();
 		loadAllAlphabet();
 
 		// 3 - Set up texture regions
@@ -104,7 +107,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 		tableBackgroundTextureRegion = TextureRegionFactory.extractFromTexture(tableBackgroundTexture);
 		hoverTextureRegion = TextureRegionFactory.extractFromTexture(hoverBackgroundTexture);
 		timerTextureRegion = TextureRegionFactory.extractFromTexture(timerTexture);
-		helpTextureRegion = TextureRegionFactory.extractFromTexture(helpTexture);
+		helpTimerTextureRegion = TextureRegionFactory.extractFromTexture(helpTimerTexture);
 
 		// 4 - Set up Font
 		mFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 24,
@@ -172,10 +175,10 @@ public class MainActivity extends SimpleBaseGameActivity {
 								xy[0] = w.x;
 								xy[1] = w.y;
 								correctXYList.add(xy);
-								
+
 								wordList.remove(w);
-								if(wordList.size() == 0){
-									finish();
+								if (wordList.size() == 0) {
+									showDialog("YOU WIN", "Your score : " + TIME_REMAINING);
 								}
 							}
 						}
@@ -243,18 +246,20 @@ public class MainActivity extends SimpleBaseGameActivity {
 		posY = CAMERA_HEIGHT - 70;
 		sprite = new Sprite(posX, posY, timerTextureRegion, getVertexBufferObjectManager());
 		scene.attachChild(sprite);
-		
-		posX = CAMERA_WIDTH - 210;
+
+		posX = CAMERA_WIDTH - 250;
 		posY = CAMERA_HEIGHT - 70;
-		ButtonSprite helper = new ButtonSprite(posX, posY, helpTextureRegion, getVertexBufferObjectManager(), new OnClickListener() {
-			
+		ButtonSprite helper = new ButtonSprite(posX, posY, helpTimerTextureRegion, getVertexBufferObjectManager(), new OnClickListener() {
+
 			@Override
 			public void onClick(ButtonSprite pButtonSprite, float pTouchAreaLocalX, float pTouchAreaLocalY) {
+				pButtonSprite.setEnabled(false);
+				pButtonSprite.setColor(Color.BLACK);
 				TIME_REMAINING += 60;
 			}
 		});
 		scene.attachChild(helper);
-		
+
 		// 7 - Register Event
 		scene.registerTouchArea(helper);
 		scene.registerTouchArea(tableBackground);
@@ -418,6 +423,35 @@ public class MainActivity extends SimpleBaseGameActivity {
 		return String.format("%d:%02d", minutes, seconds);
 	}
 
+	private void showDialog(final String title, final String msg) {
+		this.runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
+				alert.setTitle(title);
+				alert.setMessage(msg);
+				alert.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						startActivity(new Intent(getApplicationContext(), MainActivity.class));
+						finish();
+					}
+				});
+				alert.setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						finish();
+					}
+				});
+
+				alert.show();
+			}
+		});
+	}
+
 	/*
 	 * Handler
 	 */
@@ -429,7 +463,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 			TIME_REMAINING--;
 			timerText.setText(getTime());
 			if (TIME_REMAINING == 0) {
-				finish();
+				showDialog("TIME'S UP", "You lose, Please try again!!");
 			}
 		}
 	});
