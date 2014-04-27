@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
+import org.andengine.engine.Engine;
+import org.andengine.engine.LimitedFPSEngine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.handler.timer.ITimerCallback;
 import org.andengine.engine.handler.timer.TimerHandler;
@@ -38,6 +40,10 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.util.Log;
 
+import com.example.wordmatching.model.ENUM;
+import com.example.wordmatching.model.Word;
+import com.example.wordmatching.model.WordSprite;
+
 public class MainActivity extends SimpleBaseGameActivity {
 	private static String TAG = "POP";
 	private static int CAMERA_WIDTH = 480;
@@ -65,6 +71,11 @@ public class MainActivity extends SimpleBaseGameActivity {
 	private HashMap<String, ITexture> alphabetBitmapList;
 	private HashMap<String, ITextureRegion> textureRegionList;
 	private ITextureRegion backgroundTextureRegion, tableBackgroundTextureRegion, hoverTextureRegion, timerTextureRegion, helpTimerTextureRegion;
+
+	@Override
+	public Engine onCreateEngine(EngineOptions pEngineOptions) {
+		return new LimitedFPSEngine(pEngineOptions, 60);
+	}
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
