@@ -33,6 +33,7 @@ import android.graphics.Typeface;
 import android.util.Log;
 
 import com.example.wordmatching.SceneManager;
+import com.example.wordmatching.WordPrepare;
 import com.example.wordmatching.model.ENUM;
 import com.example.wordmatching.model.Word;
 import com.example.wordmatching.model.WordSprite;
@@ -63,7 +64,8 @@ public class GameScene extends AbstractScene {
 
 	private HashMap<String, ITexture> alphabetBitmapList;
 	private HashMap<String, ITextureRegion> textureRegionList;
-	private ITextureRegion backgroundTextureRegion, tableBackgroundTextureRegion, hoverTextureRegion, timerTextureRegion, helpTimerTextureRegion;
+	private ITextureRegion backgroundTextureRegion, tableBackgroundTextureRegion, hoverTextureRegion, hoverVTextureRegion, timerTextureRegion,
+			helpTimerTextureRegion;
 
 	/*
 	 * Initial Function
@@ -83,62 +85,12 @@ public class GameScene extends AbstractScene {
 	}
 
 	private void initWordList() {
-		wordList = new ArrayList<Word>();
-		Word word = new Word();
-		word.value = "dog";
-		word.x = 2;
-		word.y = 0;
-		word.orientation = ENUM.HORIZONTAL;
-		wordList.add(word);
-		fillWord2Table(word);
-
-		word = new Word();
-		word.value = "duck";
-		word.x = 0;
-		word.y = 1;
-		word.orientation = ENUM.VERTICAL;
-		wordList.add(word);
-		fillWord2Table(word);
-
-		word = new Word();
-		word.value = "cat";
-		word.x = 2;
-		word.y = 2;
-		word.orientation = ENUM.HORIZONTAL;
-		wordList.add(word);
-		fillWord2Table(word);
-
-		word = new Word();
-		word.value = "ant";
-		word.x = 3;
-		word.y = 2;
-		word.orientation = ENUM.VERTICAL;
-		wordList.add(word);
-		fillWord2Table(word);
-
-		word = new Word();
-		word.value = "girl";
-		word.x = 5;
-		word.y = 4;
-		word.orientation = ENUM.VERTICAL;
-		wordList.add(word);
-		fillWord2Table(word);
-
-		word = new Word();
-		word.value = "animal";
-		word.x = 0;
-		word.y = 7;
-		word.orientation = ENUM.HORIZONTAL;
-		wordList.add(word);
-		fillWord2Table(word);
-
-		word = new Word();
-		word.value = "man";
-		word.x = 3;
-		word.y = 7;
-		word.orientation = ENUM.VERTICAL;
-		wordList.add(word);
-		fillWord2Table(word);
+		Random r = new Random();
+		int id = r.nextInt(4) + 0;
+		wordList = WordPrepare.getWords(id);
+		for (Word word : wordList) {
+			fillWord2Table(word);
+		}
 	}
 
 	/*
@@ -280,7 +232,8 @@ public class GameScene extends AbstractScene {
 		// 1 - Set up bitmap textures
 		ITexture backgroundTexture = loadTexture("gfx/background2.png");
 		ITexture tableBackgroundTexture = loadTexture("gfx/table.png");
-		ITexture hoverBackgroundTexture = loadTexture("gfx/hover.png");
+		ITexture hoverBackgroundTexture = loadTexture("gfx/hover2.png");
+		//ITexture hoverVBackgroundTexture = loadTexture("gfx/hoverV.png");
 		ITexture timerTexture = loadTexture("gfx/timer.png");
 		ITexture helpTimerTexture = loadTexture("gfx/helpTime.png");
 		initTable();
@@ -290,6 +243,7 @@ public class GameScene extends AbstractScene {
 		backgroundTexture.load();
 		tableBackgroundTexture.load();
 		hoverBackgroundTexture.load();
+		//hoverVBackgroundTexture.load();
 		timerTexture.load();
 		helpTimerTexture.load();
 		loadAllAlphabet();
@@ -298,6 +252,7 @@ public class GameScene extends AbstractScene {
 		backgroundTextureRegion = TextureRegionFactory.extractFromTexture(backgroundTexture);
 		tableBackgroundTextureRegion = TextureRegionFactory.extractFromTexture(tableBackgroundTexture);
 		hoverTextureRegion = TextureRegionFactory.extractFromTexture(hoverBackgroundTexture);
+		//hoverVTextureRegion = TextureRegionFactory.extractFromTexture(hoverVBackgroundTexture);
 		timerTextureRegion = TextureRegionFactory.extractFromTexture(timerTexture);
 		helpTimerTextureRegion = TextureRegionFactory.extractFromTexture(helpTimerTexture);
 
@@ -325,9 +280,8 @@ public class GameScene extends AbstractScene {
 					if (pSceneTouchEvent.isActionDown()) {
 						hoverList = new ArrayList<Sprite>();
 						wordStack = new StringBuilder();
-
-						canSwipe = true;
 						lastestTouch = touchAt(pTouchAreaLocalX, pTouchAreaLocalY);
+						canSwipe = true;
 						for (int[] xy : correctXYList) {
 							if (xy[0] == lastestTouch[0] && xy[1] == lastestTouch[1]) {
 								canSwipe = false;
@@ -359,7 +313,7 @@ public class GameScene extends AbstractScene {
 
 								float x = w.text.getX();
 								float y = w.text.getY() + (w.text.getHeight() / 2);
-								line = new Line(x, y, x + w.text.getWidth(), y, 10, getVertexBufferObjectManager());
+								line = new Line(x, y, x + w.text.getWidth(), y, 3.0f, getVertexBufferObjectManager());
 								line.setColor(Color.RED);
 								scene.attachChild(line);
 
